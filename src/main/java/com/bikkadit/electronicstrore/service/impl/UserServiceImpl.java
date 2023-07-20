@@ -1,22 +1,30 @@
 package com.bikkadit.electronicstrore.service.impl;
 
+import com.bikkadit.electronicstrore.controller.UserController;
+import com.bikkadit.electronicstrore.dtos.PageableResponse;
 import com.bikkadit.electronicstrore.dtos.UserDto;
 import com.bikkadit.electronicstrore.entities.User;
 import com.bikkadit.electronicstrore.helper.AppConstants;
+import com.bikkadit.electronicstrore.helper.Helper;
 import com.bikkadit.electronicstrore.repository.UserRepository;
 import com.bikkadit.electronicstrore.service.UserService;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -59,13 +67,29 @@ public class UserServiceImpl implements UserService {
         userRepository.delete(user);
     }
 
-    @Override
-    public List<UserDto> getAllUser() {
-        List<User> users = userRepository.findAll();
-        List<UserDto> dtoList = users.stream().map(user -> entityToDto(user)).collect(Collectors.toList());
-        return dtoList;
-    }
 
+    @Override
+    public PageableResponse<UserDto> getAllUser(int pageNumber, int pageSize ,String sortBy, String sortDir) {
+        Sort sort = (sortDir.equalsIgnoreCase("asc")) ? Sort.by(sortBy).ascending() : (Sort.by(sortBy).descending());
+
+        Pageable page = PageRequest.of(pageNumber, pageSize);
+        Page<User> pages=this.userRepository.findAll(page);
+
+        /* ist<User> users = pages.getContent();
+         List<User> userList = userRepository.findAll();
+       List<UserDto> dtoList = users.stream().map((user) -> entityToDto(user)).collect(Collectors.toList());
+
+       PageableResponse<UserDto> response=new PageableResponse<>();
+       response.setContent(dtoList);
+       response.setPageNumber(page.getPageNumber());
+       response.setPageSize(page.getPageSize());
+       response.setLastPage(pages.isLast());
+       response.setTotalPages(pages.getTotalPages());
+       response.setTotalElements(pages.getTotalElements());*/
+
+        PageableResponse<UserDto> response = Helper.getPageableResponse(pages, UserDto.class);
+        return response;
+    }
     @Override
     public UserDto getUserById(String userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException(AppConstants.NOT_FOUNd));

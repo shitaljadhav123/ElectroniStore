@@ -1,5 +1,6 @@
 package com.bikkadit.electronicstrore.controller;
 
+import com.bikkadit.electronicstrore.dtos.PageableResponse;
 import com.bikkadit.electronicstrore.dtos.UserDto;
 import com.bikkadit.electronicstrore.helper.ApiResponseMessage;
 import com.bikkadit.electronicstrore.service.UserService;
@@ -7,11 +8,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.awt.print.Pageable;
 import java.util.List;
 
 @RestController
@@ -84,11 +87,17 @@ public class UserController {
      * @Author Shital
      */
     @GetMapping("/allusers")
-    public ResponseEntity<List<UserDto>> getAllUsers() {
+    public ResponseEntity<PageableResponse<UserDto>> getAllUsers(
+            @RequestParam (value="pageNumber",defaultValue ="0",required = false) int pageNumber,
+            @RequestParam (value="pageSize",defaultValue="10",required = true) int pageSize,
+            @RequestParam (value="sortBy",defaultValue ="name",required = false) String sortBy,
+            @RequestParam (value="sortDir",defaultValue="10",required =false) String sortDir
+    ) {
+
         logger.info("Retrieving all users...!!!");
-        List<UserDto> allUsers = userService.getAllUser();
+        PageableResponse<UserDto> allUsers = userService.getAllUser(pageNumber,pageSize,sortBy,sortDir);
         logger.info("Successfully retrieved all users...!!!");
-        return new ResponseEntity<List<UserDto>>(allUsers, HttpStatus.OK);
+        return new ResponseEntity<PageableResponse<UserDto>>(allUsers, HttpStatus.OK);
     }
 
     //get Single
