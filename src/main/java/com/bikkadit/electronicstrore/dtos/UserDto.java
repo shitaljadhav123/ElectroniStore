@@ -15,6 +15,7 @@ public class UserDto {
 
     private String userId;
 
+    @NotBlank
     @Size(min= 3, max=15,message="Invalid name !!")
     private String name;
 

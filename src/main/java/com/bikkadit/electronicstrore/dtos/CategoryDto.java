@@ -13,6 +13,7 @@ import javax.validation.constraints.NotBlank;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+
 public class CategoryDto {
 
     private String categoryId;

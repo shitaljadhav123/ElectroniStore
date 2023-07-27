@@ -4,6 +4,7 @@ import com.bikkadit.electronicstrore.dtos.CategoryDto;
 import com.bikkadit.electronicstrore.dtos.PageableResponse;
 import com.bikkadit.electronicstrore.entities.Category;
 import com.bikkadit.electronicstrore.exception.ResourceNotFoundException;
+import com.bikkadit.electronicstrore.helper.AppConstants;
 import com.bikkadit.electronicstrore.helper.Helper;
 import com.bikkadit.electronicstrore.repository.CategoryRepository;
 import com.bikkadit.electronicstrore.service.CategoryService;
@@ -34,13 +35,13 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryDto create(CategoryDto categoryDto) {
 
-        logger.info("Category is creating...!!!",categoryDto);
+        logger.info("Category is creating...!!!{}",categoryDto);
         String categoryId = UUID.randomUUID().toString();
         categoryDto.setCategoryId(categoryId);
         Category category = mapper.map(categoryDto, Category.class);
         Category saveCategory = categoryRepository.save(category);
 
-        logger.info("Category Created Sucessfully....!!!",saveCategory);
+        logger.info("Category Created Successfully..!!{}",saveCategory);
         return mapper.map(saveCategory,CategoryDto.class);
     }
 
@@ -48,7 +49,7 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryDto update(CategoryDto categoryDto, String categoryId) {
 
         //get category using Id
-        Category category = categoryRepository.findById(categoryId).orElseThrow(() -> new ResourceNotFoundException("Category not found with given Id...!!!"));
+        Category category = categoryRepository.findById(categoryId).orElseThrow(() -> new ResourceNotFoundException(AppConstants.NOT_FOUND));
 
         //update category details
 
@@ -64,7 +65,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void delete(String categoryId) {
         //get category By Id
-        Category category = categoryRepository.findById(categoryId).orElseThrow(() -> new ResourceNotFoundException("Category not found with given Id...!!!"));
+        Category category = categoryRepository.findById(categoryId).orElseThrow(() -> new ResourceNotFoundException(AppConstants.DELETE_CATEGORY));
         categoryRepository.delete(category);
 
     }
@@ -82,7 +83,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryDto get(String categoryId) {
-        Category category=categoryRepository.findById(categoryId).orElseThrow(()-> new ResourceNotFoundException("Category Not found using given Id"));
+        Category category=categoryRepository.findById(categoryId).orElseThrow(()-> new ResourceNotFoundException(AppConstants.NOT_FOUND));
         return mapper.map(category,CategoryDto.class);
 }
 

@@ -1,20 +1,32 @@
 package com.bikkadit.electronicstrore.controller;
 
+import com.bikkadit.electronicstrore.dtos.ImageResponse;
 import com.bikkadit.electronicstrore.dtos.PageableResponse;
 import com.bikkadit.electronicstrore.dtos.UserDto;
 import com.bikkadit.electronicstrore.helper.ApiResponseMessage;
+import com.bikkadit.electronicstrore.helper.AppConstants;
+import com.bikkadit.electronicstrore.service.FileService;
 import com.bikkadit.electronicstrore.service.UserService;
+
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
+import org.springframework.util.StreamUtils;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.awt.print.Pageable;
+
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 @RestController
@@ -26,7 +38,12 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    //create
+    @Autowired
+    private FileService fileService;
+
+    @Value("${user.profile.image.path}")
+    private String imageUploadPath;
+
 
     /**
      * @param userDto
@@ -34,7 +51,7 @@ public class UserController {
      * @Author Shital
      */
     @PostMapping
-    public ResponseEntity<UserDto> createUser(@RequestBody UserDto userDto) {
+    public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto userDto) {
         logger.info("Creating new user: {}", userDto);
         UserDto createdUser = userService.createUser(userDto);
         logger.info("User created successfully: {}", createdUser);
@@ -42,19 +59,16 @@ public class UserController {
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }
 
-    //update
-
     /**
      * @param userId
      * @param userDto
      * @return
-     * @Author Shital
      */
     @PutMapping("/{userId}")
-    public ResponseEntity<UserDto> updateUser(@PathVariable("userId") String userId, @RequestBody UserDto userDto) {
-        logger.info("User Update with Id :- { }", userId);
+    public ResponseEntity<UserDto> updateUser(@PathVariable String userId, @Valid @RequestBody UserDto userDto) {
+        logger.info("User Update with Id :- {}", userId);
         UserDto updatedUserDto = userService.updateUser(userDto, userId);
-        logger.info("User Updated Sucessfully...!!!", updatedUserDto);
+        logger.info("User Updated Successfully :{}", updatedUserDto);
 
         return new ResponseEntity<>(updatedUserDto, HttpStatus.OK);
     }
@@ -69,11 +83,11 @@ public class UserController {
      */
     @DeleteMapping("/{userId}")
     public ResponseEntity<ApiResponseMessage> deleteUser(@PathVariable String userId) {
-        logger.info("Deleteting user with ID:- {}", userId);
+        logger.info("Deleting user with ID:- {}", userId);
         userService.deleteUser(userId);
         ApiResponseMessage message = ApiResponseMessage.builder().message("User is deleted successfully !!").success(true).status(HttpStatus.OK).build();
 
-        logger.info("User delete Sucessfully..!!!", userId);
+        logger.info("User delete Successfully :{}", userId);
         return new ResponseEntity<>(message, HttpStatus.OK);
 
     }
@@ -88,14 +102,14 @@ public class UserController {
      */
     @GetMapping("/allusers")
     public ResponseEntity<PageableResponse<UserDto>> getAllUsers(
-            @RequestParam (value="pageNumber",defaultValue ="0",required = false) int pageNumber,
-            @RequestParam (value="pageSize",defaultValue="10",required = true) int pageSize,
-            @RequestParam (value="sortBy",defaultValue ="name",required = false) String sortBy,
-            @RequestParam (value="sortDir",defaultValue="10",required =false) String sortDir
+            @RequestParam(value = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) int pageNumber,
+            @RequestParam(value = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = true) int pageSize,
+            @RequestParam(value = "sortBy", defaultValue = AppConstants.SORT_BY, required = false) String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = AppConstants.SORT_DIR, required = false) String sortDir
     ) {
 
         logger.info("Retrieving all users...!!!");
-        PageableResponse<UserDto> allUsers = userService.getAllUser(pageNumber,pageSize,sortBy,sortDir);
+        PageableResponse<UserDto> allUsers = userService.getAllUser(pageNumber, pageSize, sortBy, sortDir);
         logger.info("Successfully retrieved all users...!!!");
         return new ResponseEntity<PageableResponse<UserDto>>(allUsers, HttpStatus.OK);
     }
@@ -145,5 +159,34 @@ public class UserController {
         return new ResponseEntity<>(userDtos, HttpStatus.OK);
     }
 
+    //upload image
 
+    @PostMapping("/image/{userId}")
+    public ResponseEntity<ImageResponse> uploadUserImage(@RequestParam("userImage") MultipartFile image, @PathVariable String userId) {
+        String imageName = fileService.uploadFile(image, imageUploadPath);
+        UserDto user = userService.getUserById(userId);
+        user.setImageName(imageName);
+        UserDto userDto = userService.updateUser(user, userId);
+        ImageResponse imageResponse = ImageResponse.builder().imageName(imageName).success(true).status(HttpStatus.CREATED).build();
+        return new ResponseEntity<>(imageResponse,HttpStatus.CREATED);
+    }
+
+    //serve image
+
+    @GetMapping("/image/{userId}")
+    public void serveUserImage(@PathVariable String userId, HttpServletResponse response) throws IOException {
+        UserDto user = userService.getUserById(userId);
+
+        logger.info("User image name:{}",user.getImageName());
+        InputStream resource = fileService.getResource(imageUploadPath, user.getImageName());
+
+        response.setContentType(MediaType.IMAGE_JPEG_VALUE);
+        StreamUtils.copy(resource,response.getOutputStream());
+
+
+    }
 }
+
+
+
+
