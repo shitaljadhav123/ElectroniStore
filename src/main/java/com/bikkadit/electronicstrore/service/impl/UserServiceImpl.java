@@ -63,7 +63,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(String userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException(AppConstants.DELETE_USER));
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException(AppConstants.DELETE_PRODUCT));
         userRepository.delete(user);
     }
 

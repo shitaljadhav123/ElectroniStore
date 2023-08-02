@@ -18,4 +18,8 @@ public class AppConstants {
 
     public static final String SORT_DIR="asc";
 
+
+  // public static final String NOT_FOUND= "Product not found with given id";
+    public static final String DELETE_PRODUCT="Product is deleted successfully";
+
 }
