@@ -159,7 +159,13 @@ public class UserController {
         return new ResponseEntity<>(userDtos, HttpStatus.OK);
     }
 
-    //upload image
+    /**
+     * @Author Shital
+     * @param image
+     * @param userId
+     * @return
+     * @throws IOException
+     */
 
     @PostMapping("/image/{userId}")
     public ResponseEntity<ImageResponse> uploadUserImage(@RequestParam("userImage") MultipartFile image, @PathVariable String userId) throws IOException{
@@ -171,7 +177,12 @@ public class UserController {
         return new ResponseEntity<>(imageResponse,HttpStatus.CREATED);
     }
 
-    //serve image
+    /**
+     * Author Shital
+     * @param userId
+     * @param response
+     * @throws IOException
+     */
 
     @GetMapping("/image/{userId}")
     public void serveUserImage(@PathVariable String userId, HttpServletResponse response) throws IOException {

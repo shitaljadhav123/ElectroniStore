@@ -7,6 +7,8 @@ import com.bikkadit.electronicstrore.dtos.UserDto;
 import com.bikkadit.electronicstrore.helper.ApiResponseMessage;
 import com.bikkadit.electronicstrore.service.FileService;
 import com.bikkadit.electronicstrore.service.ProductService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -33,6 +35,8 @@ public class ProductController {
     @Value("${product.image.path}")
     private String imagePath;
 
+    private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
+
     /**
      * @Author Shital
      * @param productDto
@@ -42,7 +46,9 @@ public class ProductController {
     @PostMapping("/")
     public ResponseEntity<ProductDto> createProduct(@RequestBody ProductDto productDto)
     {
+        logger.info("Creating Product..!!! {}", productDto);
         ProductDto createProduct = productService.create(productDto);
+        logger.info("Product created successfully...!!! {}", createProduct);
         return new ResponseEntity<>(createProduct, HttpStatus.CREATED);
 
     }
@@ -56,7 +62,10 @@ public class ProductController {
     @PutMapping ("/{productId}")
     public ResponseEntity<ProductDto> updateProduct(@RequestBody ProductDto productDto, @PathVariable String  productId)
     {
+        logger.info("Update Product..!!! {}", productDto);
         ProductDto updateProduct = productService.update(productDto,productId);
+
+        logger.info("update Successfully...!!! {}", updateProduct);
         return new ResponseEntity<>(updateProduct, HttpStatus.OK);
 
     }
@@ -69,8 +78,11 @@ public class ProductController {
     @DeleteMapping("/{productId}")
     public ResponseEntity<ApiResponseMessage> deleteProduct(@PathVariable String  productId)
     {
+        logger.info("Deleting Product by id {}", productId);
           productService.delete(productId);
         ApiResponseMessage responseMessage = ApiResponseMessage.builder().message("Product is deleted successfully").status(HttpStatus.OK).success(true).build();
+
+        logger.info("Deleted Successfully {}", responseMessage);
         return new ResponseEntity<>(responseMessage,HttpStatus.OK);
     }
 
@@ -82,7 +94,9 @@ public class ProductController {
     @GetMapping("/{productId}")
         public ResponseEntity<ProductDto> getProduct(@PathVariable String productId)
     {
+        logger.info("Retrieving product by Id");
         ProductDto productDto = productService.get(productId);
+        logger.info("Retrieving Successful...!!!{}",productDto);
         return new ResponseEntity<>(productDto, HttpStatus.OK);
 
     }
@@ -102,7 +116,10 @@ public class ProductController {
             @RequestParam(value = "sortBy", defaultValue = "title", required = false) String sortBy,
             @RequestParam(value = "sortDir", defaultValue = "asc", required = false) String sortDir
     ){
+        logger.info("Retrieving All product..!!!");
         PageableResponse<ProductDto> pageableResponse = productService.getAll(pageNumber,pageSize,sortBy,sortDir);
+
+        logger.info("Retrieving successfully...!!! {}",pageableResponse);
         return new ResponseEntity<>(pageableResponse,HttpStatus.OK);
     }
 
@@ -122,7 +139,9 @@ public class ProductController {
             @RequestParam(value = "sortBy", defaultValue = "title", required = false) String sortBy,
             @RequestParam(value = "sortDir", defaultValue = "asc", required = false) String sortDir
     ){
+        logger.info("Retrieving  live product  ");
         PageableResponse<ProductDto> pageableResponse = productService.getAllLive(pageNumber,pageSize,sortBy,sortDir);
+        logger.info("Retrieving successfully...!!! {}",pageableResponse);
         return new ResponseEntity<>(pageableResponse,HttpStatus.OK);
     }
 
@@ -144,7 +163,9 @@ public class ProductController {
             @RequestParam(value = "sortBy", defaultValue = "title", required = false) String sortBy,
             @RequestParam(value = "sortDir", defaultValue = "asc", required = false) String sortDir
     ){
+        logger.info("Search product....");
         PageableResponse<ProductDto> pageableResponse = productService.searchByTitle(query,pageNumber,pageSize,sortBy,sortDir);
+        logger.info("Retrieving successfully...!!! {}",pageableResponse);
         return new ResponseEntity<>(pageableResponse,HttpStatus.OK);
     }
 
@@ -159,12 +180,14 @@ public class ProductController {
     public ResponseEntity<ImageResponse> uploadProductImage(
         @PathVariable String productId,@RequestParam("ProductImage")MultipartFile image) throws IOException
     {
+        logger.info("upload image by id {}",productId);
         String fileName = fileService.uploadFile(image, imagePath);
         ProductDto productDto = productService.get(productId);
         productDto.setImageName(fileName);
         ProductDto updatedProduct = productService.update(productDto, productId);
 
         ImageResponse response = ImageResponse.builder().imageName(updatedProduct.getImageName()).message("product image is successfully upload").status(HttpStatus.CREATED).success(true).build();
+        logger.info("Upload image successfully...!!! {}",response);
         return  new ResponseEntity<>(response,HttpStatus.CREATED);
     }
 
@@ -177,11 +200,9 @@ public class ProductController {
 
     @GetMapping("/image/{productId}")
     public void serveUserImage(@PathVariable String productId, HttpServletResponse response) throws IOException {
+        logger.info("Retrieve image by id {}",productId);
         ProductDto productDto = productService.get(productId);
-
-
         InputStream resource = fileService.getResource(imagePath,productDto.getImageName());
-
         response.setContentType(MediaType.IMAGE_JPEG_VALUE);
         StreamUtils.copy(resource,response.getOutputStream());
     }
