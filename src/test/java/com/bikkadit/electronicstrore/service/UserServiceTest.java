@@ -161,7 +161,7 @@ public class UserServiceTest {
                 .password("abcd")
                 .build();
 
-        User user1 = User.builder()
+        User user1 = User.builder() 
                 .name("priya Jadhav")
                 .email("priya@gmail.com")
                 .about("I am a software developer")
@@ -190,7 +190,7 @@ public class UserServiceTest {
                 .password("abcd")
                 .build();
 
-         String keywords="Jadhav";
+         String keywords="S";
         Mockito.when(userRepository.findByNameContaining(keywords)).thenReturn(Arrays.asList(user,user1,user2,user3));
 
         List<UserDto> userDtos = userService.searchUser(keywords);
