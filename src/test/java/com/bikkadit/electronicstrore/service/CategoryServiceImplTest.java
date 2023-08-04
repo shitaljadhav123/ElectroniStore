@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.*;
 
@@ -20,10 +21,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@SpringBootTest
 public class CategoryServiceImplTest {
 
     @MockBean
-    private CategoryRepository categoryRepository;
+    private  CategoryRepository categoryRepository;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -61,11 +63,11 @@ public class CategoryServiceImplTest {
 
     @Test
     public void createCategoryTest(){
-        Mockito.when(categoryRepository.save(Mockito.any())).thenReturn(category1);
+        Mockito.when(categoryRepository.save(Mockito.any())).thenReturn(category2);
 
-        CategoryDto createdCategory = categoryServiceImpl.create (modelMapper.map(category1, CategoryDto.class));
+        CategoryDto createdCategory = categoryServiceImpl.create (modelMapper.map(category2, CategoryDto.class));
 
-        Assertions.assertEquals(category1.getTitle(),createdCategory.getTitle());
+        Assertions.assertEquals(category2.getTitle(),createdCategory.getTitle());
     }
 
     @Test

@@ -102,9 +102,9 @@ public class CategoryControllerTest {
                         .content(convertObjectToJsonString(category))
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isCreated())
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").exists())
-                .andExpect(jsonPath("$.categoryDescription").exists());
+                .andExpect(jsonPath("$.description").exists());
 
 
     }
@@ -142,8 +142,8 @@ public class CategoryControllerTest {
     @Test
     void getAllCategoriesTest() throws Exception {
         CategoryDto categoryDto1=CategoryDto.builder().categoryId(UUID.randomUUID().toString())
-                .title("Headphones")
-                .description("Headphones available with good quality")
+                .title("Cooler")
+                .description("Cooler available with good quality")
                 .coverImage("xyz.png")
                 .build();
         CategoryDto categoryDto2=CategoryDto.builder().categoryId(UUID.randomUUID().toString())
@@ -152,9 +152,9 @@ public class CategoryControllerTest {
                 .coverImage("def.png")
                 .build();
         CategoryDto categoryDto3=CategoryDto.builder().categoryId(UUID.randomUUID().toString())
-                .title("Electronics")
-                .description("Eletronics products available with good quality")
-                .coverImage("hjh.png")
+                .title("AC")
+                .description("AC available with good quality")
+                .coverImage("pqr.png")
                 .build();
         CategoryDto categoryDto4=CategoryDto.builder().categoryId(UUID.randomUUID().toString())
                 .title("phones")
