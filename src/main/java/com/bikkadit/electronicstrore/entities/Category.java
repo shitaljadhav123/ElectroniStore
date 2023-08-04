@@ -1,9 +1,6 @@
 package com.bikkadit.electronicstrore.entities;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,6 +11,7 @@ import javax.persistence.Table;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Builder
 @Table(name="categories")
 public class Category {
 
@@ -28,5 +26,7 @@ public class Category {
     private String title;
 
     private String coverImage;
+
+
 
 }

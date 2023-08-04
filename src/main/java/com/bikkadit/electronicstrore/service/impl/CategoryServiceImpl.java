@@ -48,6 +48,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryDto update(CategoryDto categoryDto, String categoryId) {
 
+        logger.info("Update category by id {}",categoryId);
         //get category using Id
         Category category = categoryRepository.findById(categoryId).orElseThrow(() -> new ResourceNotFoundException(AppConstants.NOT_FOUND));
 
@@ -58,14 +59,17 @@ public class CategoryServiceImpl implements CategoryService {
         category.setCoverImage(categoryDto.getCoverImage());
 
         Category updatedCategory = categoryRepository.save(category);
+        logger.info("Category updating successfully");
         return mapper.map(updatedCategory,CategoryDto.class);
 
     }
 
     @Override
     public void delete(String categoryId) {
+        logger.info("Deleting Category by id {}", categoryId);
         //get category By Id
         Category category = categoryRepository.findById(categoryId).orElseThrow(() -> new ResourceNotFoundException(AppConstants.DELETE_CATEGORY));
+        logger.info("Deleted Successfully {}", category);
         categoryRepository.delete(category);
 
     }
