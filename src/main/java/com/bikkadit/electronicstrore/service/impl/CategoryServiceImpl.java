@@ -76,10 +76,12 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public PageableResponse<CategoryDto> getAll(int pageNumber, int pageSize, String sortBy, String sortDir) {
+        logger.info("Retrieving All category...!!!");
         Sort sort = (sortDir.equalsIgnoreCase("desc")) ? (Sort.by(sortBy).descending()) : (Sort.by(sortBy).ascending());
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
         Page<Category> page = categoryRepository.findAll(pageable);
         PageableResponse<CategoryDto> pageableResponse = Helper.getPageableResponse(page, CategoryDto.class);
+        logger.info("Retrieving successfully...!!! {}",pageableResponse);
         return pageableResponse;
     }
 
@@ -87,7 +89,9 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryDto get(String categoryId) {
+        logger.info("Retrieving Category by Id");
         Category category=categoryRepository.findById(categoryId).orElseThrow(()-> new ResourceNotFoundException(AppConstants.NOT_FOUND));
+        logger.info("Retrieving Successful...!!!{}",category);
         return mapper.map(category,CategoryDto.class);
 }
 

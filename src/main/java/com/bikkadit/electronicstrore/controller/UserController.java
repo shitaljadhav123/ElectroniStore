@@ -169,11 +169,13 @@ public class UserController {
 
     @PostMapping("/image/{userId}")
     public ResponseEntity<ImageResponse> uploadUserImage(@RequestParam("userImage") MultipartFile image, @PathVariable String userId) throws IOException{
+        logger.info("Upload image by user id {}",userId);
         String imageName = fileService.uploadFile(image, imageUploadPath);
         UserDto user = userService.getUserById(userId);
         user.setImageName(imageName);
         UserDto userDto = userService.updateUser(user, userId);
         ImageResponse imageResponse = ImageResponse.builder().message("user image upload successfully").imageName(imageName).success(true).status(HttpStatus.CREATED).build();
+       logger.info("image upload successfully..");
         return new ResponseEntity<>(imageResponse,HttpStatus.CREATED);
     }
 
@@ -192,6 +194,7 @@ public class UserController {
         InputStream resource = fileService.getResource(imageUploadPath, user.getImageName());
 
         response.setContentType(MediaType.IMAGE_JPEG_VALUE);
+        logger.info("Retrieve image successfully");
         StreamUtils.copy(resource,response.getOutputStream());
 
 

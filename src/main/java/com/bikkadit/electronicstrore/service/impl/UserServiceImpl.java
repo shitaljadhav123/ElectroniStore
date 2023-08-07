@@ -33,6 +33,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto createUser(UserDto userDto) {
 
+        logger.info("Creating new user: {}", userDto);
         //generate userId in string format
         String userId = java.util.UUID.randomUUID().toString();
         userDto.setUserId(userId);
@@ -41,6 +42,7 @@ public class UserServiceImpl implements UserService {
         User saveUser = userRepository.save(user);
         //dto to entity
         UserDto newDto = mapper.map(user, UserDto.class);
+        logger.info("User created successfully: {}", newDto);
         return newDto;
 
     }
@@ -48,6 +50,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto updateUser(UserDto userDto, String userId) {
+        logger.info("User Update with Id :- {}", userId);
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException(AppConstants.NOT_FOUNd));
         user.setAbout(userDto.getAbout());
         user.setName(userDto.getName());
@@ -58,18 +61,22 @@ public class UserServiceImpl implements UserService {
         //save data
         User updatedUser = userRepository.save(user);
         UserDto updateDto = entityToDto(updatedUser);
+        logger.info("User Updated Successfully :{}", updateDto);
         return updateDto;
     }
 
     @Override
     public void deleteUser(String userId) {
+        logger.info("Deleting user with ID:- {}", userId);
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException(AppConstants.DELETE_PRODUCT));
+        logger.info("User delete Successfully :{}", userId);
         userRepository.delete(user);
     }
 
 
     @Override
     public PageableResponse<UserDto> getAllUser(int pageNumber, int pageSize ,String sortBy, String sortDir) {
+        logger.info("Retrieving all users...!!!");
         Sort sort = (sortDir.equalsIgnoreCase("asc")) ? Sort.by(sortBy).ascending() : (Sort.by(sortBy).descending());
 
         Pageable page = PageRequest.of(pageNumber, pageSize);
@@ -88,24 +95,31 @@ public class UserServiceImpl implements UserService {
        response.setTotalElements(pages.getTotalElements());*/
 
         PageableResponse<UserDto> response = Helper.getPageableResponse(pages, UserDto.class);
+        logger.info("Successfully retrieved all users...!!!");
         return response;
     }
     @Override
     public UserDto getUserById(String userId) {
+        logger.info("Retrieving user with ID: {}", userId);
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException(AppConstants.NOT_FOUNd));
+        logger.info("Successfully retrieved user: {}", user);
         return entityToDto(user);
     }
 
     @Override
     public UserDto getUserByEmail(String email) {
+        logger.info("Retrieving user by email: {}", email);
         User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException(AppConstants.NOT_FOUNd));
+        logger.info("Successfully retrieved user: {}", user);
         return entityToDto(user);
     }
 
     @Override
     public List<UserDto> searchUser(String keyword) {
+        logger.info("Searching for users containing keyword: {}", keyword);
         List<User> users = userRepository.findByNameContaining(keyword);
         List<UserDto> dtoList = users.stream().map(user -> entityToDto(user)).collect(Collectors.toList());
+        logger.info("Successfully retrieved users matching the search...!!!");
         return dtoList;
     }
 
